@@ -7,7 +7,6 @@ import dayjs from 'dayjs';
 import Subscription from '../models/subscription.model.js';
 import { sendReminderEmail } from '../config/utils/send-email.js';
 
-// require serve from upstach
 const { serve } = require('@upstash/workflow/express');
 
 const REMINDERS = [7, 5, 2, 1];
@@ -17,17 +16,14 @@ export const sendReminders = serve(async (context) => {
 	const { subscriptionId } = context.requestPayload;
 	const subscription = await fetchSubscription(context, subscriptionId);
 
-	// simple return if no subscription or not active
 	if (!subscription || subscription.status != 'active') return;
 
-	// for renewal
 	const renewalDate = dayjs(subscription.renewalDate);
 
 	if (renewalDate.isBefore(dayjs())) {
 		console.log(`Renewal date has passed for subscription ${subscriptionId}. Stopping workflow`);
 	}
 
-	// workflows
 	for (const daysBefore of REMINDERS) {
 		const reminderDate = renewalDate.subtract(daysBefore, 'day');
 
@@ -59,7 +55,6 @@ async function triggerReminder(context, label, subscription) {
 	return await context.run(label, async () => {
 		console.log(`Triggering ${label} reminder`);
 
-		// later, send email, push notification, sms etc
 		await sendReminderEmail({
 			to: subscription.user.email,
 			type: label,

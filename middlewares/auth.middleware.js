@@ -10,32 +10,25 @@ async function authorize(req, res, next) {
 	try {
 		let token;
 
-		// if token exist
 		if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
 			token = req.headers.authorization.split(' ')[1];
 		}
 
-		// if no token
 		if (!token) {
 			return res.status(401).json({ message: 'Unauthorize' });
 		}
 
-		// check if token is blacklisted
 		const blacklist = await BlacklistToken.findOne({ token });
 		if (blacklist) {
 			return res.status(401).json({ message: 'Token has been invalidated' });
 		}
 
-		// verify token if it exists
 		const decoded = jwt.verify(token, JWT_SECRET);
 
-		// search user in DB
 		const user = await User.findById(decoded.userId);
 
-		// if it doesn't exists in DB
 		if (!user) return res.status(401).json({ message: 'Unauthorized' });
 
-		// attach user to request being made
 		req.user = user;
 
 		next();
