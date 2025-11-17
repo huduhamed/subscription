@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 // internal imports
 import { DB_URI, NODE_ENV } from '../config/env.js';
 
-// check if mongodb is connected
 if (!DB_URI) {
 	throw new Error('Please define DB_URI in dotenv');
 }
